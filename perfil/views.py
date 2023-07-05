@@ -11,6 +11,7 @@ from .utils import calcula_total
 
 def home(request):
     contas = Conta.objects.all()
+
     
     total_contas = calcula_total(contas, 'valor')
     return render(request, 'home.html', {'contas' : contas, 'total_contas' : total_contas})
