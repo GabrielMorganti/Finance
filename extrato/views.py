@@ -4,6 +4,12 @@ from . models import Valores
 from django.contrib import messages
 from django.contrib.messages import constants
 from datetime import datetime
+from django.template.loader import render_to_string
+import os
+from django.conf import settings
+from django.http import HttpResponse, FileResponse
+from weasyprint import HTML
+from io import BytesIO
 
 
 # Create your views here.
@@ -13,6 +19,7 @@ def novo_valor(request):
         contas = Conta.objects.all()
         categorias = Categoria.objects.all()
         return render(request, 'novo_valor.html', {'contas': contas, 'categorias': categorias})
+    
     elif request.method == "POST":
         valor = request.POST.get('valor')
         categoria = request.POST.get('categoria')
@@ -39,6 +46,7 @@ def novo_valor(request):
             messages.add_message(request, constants.SUCCESS, 'Entrada cadastrada com sucesso')
             conta.save()
             return redirect('/extrato/novo_valor')
+        
         elif tipo == 'S':
             conta.valor -= int(valor)
             messages.add_message(request, constants.SUCCESS, 'Saida cadastrada com sucesso')
@@ -65,3 +73,17 @@ def view_extrato(request):
         
    
     return render(request, 'view_extrato.html', {'valores' : valores, 'contas' : contas, 'categorias' : categorias,})
+
+def exportar_pdf(request):
+    valores = Valores.objects.filter(data__month = datetime.now().month)
+    
+    path_template = os.path.join(settings.BASE_DIR, 'templates/partials/extrato.html')
+    template_render = render_to_string(path_template, {'valores' : valores })
+    
+    path_output = BytesIO()
+    HTML(string = template_render).write_pdf(path_output)
+    
+    path_output.seek(0)
+    
+    return FileResponse(path_output, filename = "extrato.pdf")
+    
