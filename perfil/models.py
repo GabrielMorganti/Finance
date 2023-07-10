@@ -2,7 +2,6 @@ from django.db import models
 from datetime import datetime
 from .utils import calcula_total
 
-
 # Create your models here.
 
 class Categoria(models.Model):

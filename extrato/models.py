@@ -1,5 +1,5 @@
 from django.db import models
-from perfil.models import Categoria,Conta
+from perfil.models import Categoria, Conta
 
 
 # Create your models here.
